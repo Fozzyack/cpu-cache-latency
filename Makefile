@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=gnu17 -Wall -Wextra -Werror -Wpedantic
+CFLAGS = -std=gnu17 -O2 -Wall -Wextra -Werror -Wpedantic
 
 TARGET = mem_lantency.out
 
@@ -13,6 +13,5 @@ clean:
 run: $(TARGET)
 	./$(TARGET)
 
-$(TARGET): 
+$(TARGET): main.c Makefile
 	$(CC) $(CFLAGS) -o $(TARGET) main.c
-
