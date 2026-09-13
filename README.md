@@ -16,3 +16,32 @@ guaranteed measurement of DRAM alone. It can be affected by hardware
 prefetching, another CPU core, memory-controller state, operating-system
 activity, and virtualization. Run it on a native Linux system for the most
 stable results; WSL2 can produce large outliers.
+
+## Example results
+
+Ten runs on an Intel Core Ultra 7 155U produced these median
+timestamp-counter measurements. The adjusted time columns subtract the timer
+overhead and use the measured 2.688 GHz TSC frequency:
+
+| Run | Overhead (ticks) | Cached (ticks) | Flushed (ticks) | Adjusted cached (ticks) | Cached time (ns) | Adjusted flushed (ticks) | Flushed time (ns) |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 54 | 56 | 344 | 2 | 0.7 | 290 | 107.9 |
+| 2 | 54 | 56 | 334 | 2 | 0.7 | 280 | 104.2 |
+| 3 | 84 | 88 | 400 | 4 | 1.5 | 316 | 117.6 |
+| 4 | 56 | 56 | 354 | 0 | 0.0 | 298 | 110.9 |
+| 5 | 56 | 58 | 356 | 2 | 0.7 | 300 | 111.6 |
+| 6 | 56 | 58 | 336 | 2 | 0.7 | 280 | 104.2 |
+| 7 | 28 | 30 | 316 | 2 | 0.7 | 288 | 107.1 |
+| 8 | 28 | 30 | 308 | 2 | 0.7 | 280 | 104.2 |
+| 9 | 56 | 58 | 346 | 2 | 0.7 | 290 | 107.9 |
+| 10 | 54 | 58 | 350 | 4 | 1.5 | 296 | 110.1 |
+
+Across the ten runs, the adjusted cached result ranged from 0 to 4 ticks
+(0.0 to 1.5 ns) with a median of 2 ticks (0.7 ns). The adjusted flushed result
+ranged from 280 to 316 ticks (104.2 to 117.6 ns) with a median of 290 ticks
+(107.9 ns). The timer overhead dominates the very short cached load, so its
+adjusted time is too noisy for a precise latency measurement. The much larger
+and consistent flushed result clearly shows the cost of a cold load.
+
+These values are timestamp-counter ticks, not necessarily CPU core clock
+cycles. The time estimates use `latency_ns = adjusted_ticks / 2.688 GHz`.
