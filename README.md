@@ -17,6 +17,25 @@ prefetching, another CPU core, memory-controller state, operating-system
 activity, and virtualization. Run it on a native Linux system for the most
 stable results; WSL2 can produce large outliers.
 
+## Timer overhead
+
+Reading the timestamp counter is not free. This benchmark also uses memory
+fences around each reading to prevent the CPU from moving the measured load
+outside the timed region. Together, the timestamp reads and fences can take
+far longer than an L1 cache hit.
+
+Subtracting the measured timer overhead gives a rough estimate, but it also
+amplifies small variations in instruction scheduling, interrupts, and CPU
+frequency. If the timer and cached measurements round to the same median, the
+adjusted result is zero even though the load did take time. A result in the
+0 to 4 tick range should therefore not be interpreted as an exact L1 latency.
+
+A more accurate way to measure short latencies is to time many dependent loads
+as one operation and divide the total time by the number of loads. This
+amortizes the fixed timer overhead while the dependency prevents the CPU from
+executing the loads in parallel. Timer subtraction is more reliable for the
+flushed load here because its latency is much larger than the overhead.
+
 ## Example results
 
 Ten runs on an Intel Core Ultra 7 155U produced these median
